@@ -66,6 +66,7 @@ public class NovaPropostaControllerTest {
     //------------------------------------
     private String documentoInvalido = "0439445042";
     private BigDecimal salarioNegativo = new BigDecimal(-1000.0);
+    private String emailInvalido = "testeemail.com";
 
     // 1 cenario de test / caminho feliz
 
@@ -96,7 +97,7 @@ public class NovaPropostaControllerTest {
     // 2 cenario de test /
 
     @Test
-    @DisplayName("não deve criar proposta, retornar exception 422 quando documento ja existe pra esta proposta")
+    @DisplayName("deve retornar exception 422 quando documento ja existe pra esta proposta")
     public void deveRetornar422QuandoDocumentoExisteParaAProposta() throws Exception {
 
         // cenario
@@ -123,10 +124,10 @@ public class NovaPropostaControllerTest {
         //assertivas
     }
 
-    // 2 cenario de test /
+    // 3 cenario de test /
 
     @Test
-    @DisplayName("não deve retornar 400, erro de validação quando documento for invalido")
+    @DisplayName("deve retornar 400, erro de validação quando documento for invalido")
     public void deveRetornar400QuandoDocumentoInvalido() throws Exception {
 
         // cenario
@@ -146,17 +147,17 @@ public class NovaPropostaControllerTest {
         //assertivas
     }
 
-    // 2 cenario de test /
+    // 4 cenario de test /
 
     @Test
-    @DisplayName("não deve retornar 400, erro de validação quando salario for negativo")
+    @DisplayName("deve retornar 400, erro de validação quando salario for negativo")
     public void deveRetornar400QuandoSalarioInvalido() throws Exception {
 
         // cenario
 
         EnderecoRequest enderecoRequest = new EnderecoRequest(logradouro, bairro, complemento, uf, cep);
 
-        NovaPropostaRequest request = new NovaPropostaRequest(documentoInvalido, email, nome, enderecoRequest, salarioNegativo);
+        NovaPropostaRequest request = new NovaPropostaRequest(documento, email, nome, enderecoRequest, salarioNegativo);
 
         URI uri = new URI("/propostas");
 
@@ -168,6 +169,52 @@ public class NovaPropostaControllerTest {
 
         //assertivas
     }
+
+    // 5 cenario de test /
+
+    @Test
+    @DisplayName("deve retornar 400, erro de validação quando email for invalido")
+    public void deveRetornar400QuandoEmailInvalido() throws Exception {
+
+        // cenario
+
+        EnderecoRequest enderecoRequest = new EnderecoRequest(logradouro, bairro, complemento, uf, cep);
+
+        NovaPropostaRequest request = new NovaPropostaRequest(documento, emailInvalido, nome, enderecoRequest, salario);
+
+        URI uri = new URI("/propostas");
+
+        // ação
+
+        mockMvc.perform(MockMvcRequestBuilders.post(uri)
+                .content(toJson(request))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().is(400));
+
+        //assertivas
+    }
+
+    // 6 cenario de test /
+
+    @Test
+    @DisplayName("deve retornar 400, erro de validação quando endereco nullo")
+    public void deveRetornar400QuandoEnderecoNullo() throws Exception {
+
+        // cenario
+
+
+        NovaPropostaRequest request = new NovaPropostaRequest(documento, emailInvalido, nome, null, salario);
+
+        URI uri = new URI("/propostas");
+
+        // ação
+
+        mockMvc.perform(MockMvcRequestBuilders.post(uri)
+                .content(toJson(request))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().is(400));
+
+        //assertivas
+    }
+
 
 
     // metodo para desserializar objeto da requisição
